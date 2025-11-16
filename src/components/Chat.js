@@ -1,34 +1,53 @@
 import React, { useState, useEffect, useRef } from "react";
-import SimpleBar from "simplebar-react"; // optional for smooth scrolling
-import "simplebar-react/dist/simplebar.min.css";
 import "../styles.css";
-
-function setViewportHeight() {
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty("--vh", `${vh}px`);
-}
 
 const Chat = () => {
   const [messages, setMessages] = useState([
     { id: 1, author: "Bot", text: "Welcome to the chat!" },
   ]);
   const [inputValue, setInputValue] = useState("");
-  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const inputRef = useRef(null);
 
+  // Scroll to bottom on new messages
   useEffect(() => {
-    setViewportHeight();
-    window.addEventListener("resize", setViewportHeight);
+    scrollToBottom();
+  }, [messages]);
+
+  // Scroll function to scroll to bottom (latest messages at bottom)
+  const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  };
+
+  // Handle viewport resize for keyboard appearance smoothly
+  useEffect(() => {
+    const onViewportResize = () => {
+      // Scroll input into view to prevent hiding behind keyboard
+      setTimeout(() => {
+        inputRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        scrollToBottom();
+      }, 300);
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", onViewportResize);
+    } else {
+      window.addEventListener("resize", onViewportResize);
+    }
+
     return () => {
-      window.removeEventListener("resize", setViewportHeight);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", onViewportResize);
+      } else {
+        window.removeEventListener("resize", onViewportResize);
+      }
     };
   }, []);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   const sendMessage = () => {
-    if (inputValue.trim() === "") return;
+    if (!inputValue.trim()) return;
     setMessages((prev) => [
       ...prev,
       { id: prev.length + 1, author: "You", text: inputValue.trim() },
@@ -46,36 +65,27 @@ const Chat = () => {
   return (
     <div className="chat-container">
       <header className="chat-header">Chat App</header>
-      <SimpleBar className="chat-main" forceVisible="y" autoHide={false}>
+
+      <div className="chat-main" ref={messagesContainerRef}>
+        {/* Display messages in normal column order but container is flex-column-reverse */}
         {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`bubble ${msg.author === "You" ? "me" : "bot"}`}
-          >
+          <div key={msg.id} className={`bubble ${msg.author === "You" ? "me" : "bot"}`}>
             {msg.text}
           </div>
         ))}
-        <div ref={messagesEndRef}></div>
-      </SimpleBar>
+      </div>
+
       <footer className="chat-footer">
         <textarea
           rows={1}
-          className="chat-input"
           placeholder="Type a message..."
+          className="chat-input"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={onKeyDown}
-          onFocus={() =>
-            setTimeout(() => {
-              messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-            }, 300)
-          }
+          ref={inputRef}
         />
-        <button
-          className="send-btn"
-          onClick={sendMessage}
-          disabled={!inputValue.trim()}
-        >
+        <button className="send-btn" onClick={sendMessage} disabled={!inputValue.trim()}>
           Send
         </button>
       </footer>
