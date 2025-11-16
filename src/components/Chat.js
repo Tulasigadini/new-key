@@ -5,54 +5,44 @@ const Chat = () => {
   const [messages, setMessages] = useState([
     { id: 1, author: "Bot", text: "Welcome to the chat!" },
   ]);
-  const [inputValue, setInputValue] = useState("");
-  const messagesContainerRef = useRef(null);
-  const inputRef = useRef(null);
+  const [input, setInput] = useState("");
+  const messagesRef = useRef(null);
+  const containerRef = useRef(null);
 
-  // Scroll to bottom on new messages
+  // Adjust chat main bottom padding dynamically to keyboard height
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Scroll function to scroll to bottom (latest messages at bottom)
-  const scrollToBottom = () => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-    }
-  };
-
-  // Handle viewport resize for keyboard appearance smoothly
-  useEffect(() => {
-    const onViewportResize = () => {
-      // Scroll input into view to prevent hiding behind keyboard
-      setTimeout(() => {
-        inputRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-        scrollToBottom();
-      }, 300);
+    const handleResize = () => {
+      const vh = window.innerHeight;
+      const visualViewportHeight = window.visualViewport?.height || vh;
+      if (containerRef.current) {
+        // Set bottom padding based on viewport difference (keyboard height)
+        const paddingBottom = vh - visualViewportHeight;
+        containerRef.current.style.paddingBottom = `${paddingBottom + 80}px`; // 80px is footer height
+      }
     };
 
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", onViewportResize);
-    } else {
-      window.addEventListener("resize", onViewportResize);
-    }
+    window.addEventListener("resize", handleResize);
+    window.visualViewport?.addEventListener("resize", handleResize);
+    handleResize();
 
     return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener("resize", onViewportResize);
-      } else {
-        window.removeEventListener("resize", onViewportResize);
-      }
+      window.removeEventListener("resize", handleResize);
+      window.visualViewport?.removeEventListener("resize", handleResize);
     };
   }, []);
 
+  // Scroll to bottom on new message
+  useEffect(() => {
+    messagesRef.current?.scrollTo({
+      top: messagesRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
+
   const sendMessage = () => {
-    if (!inputValue.trim()) return;
-    setMessages((prev) => [
-      ...prev,
-      { id: prev.length + 1, author: "You", text: inputValue.trim() },
-    ]);
-    setInputValue("");
+    if (input.trim() === "") return;
+    setMessages([...messages, { id: messages.length + 1, author: "You", text: input.trim() }]);
+    setInput("");
   };
 
   const onKeyDown = (e) => {
@@ -66,26 +56,32 @@ const Chat = () => {
     <div className="chat-container">
       <header className="chat-header">Chat App</header>
 
-      <div className="chat-main" ref={messagesContainerRef}>
-        {/* Display messages in normal column order but container is flex-column-reverse */}
-        {messages.map((msg) => (
-          <div key={msg.id} className={`bubble ${msg.author === "You" ? "me" : "bot"}`}>
-            {msg.text}
-          </div>
-        ))}
-      </div>
+      <main className="chat-main" ref={messagesRef} aria-live="polite" aria-relevant="additions">
+        <div ref={containerRef} className="messages-container">
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`bubble ${msg.author === "You" ? "me" : "bot"}`}
+              role="article"
+              aria-label={`${msg.author} message`}
+            >
+              {msg.text}
+            </div>
+          ))}
+        </div>
+      </main>
 
       <footer className="chat-footer">
         <textarea
-          rows={1}
-          placeholder="Type a message..."
           className="chat-input"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          rows={1}
+          placeholder="Type your message..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
           onKeyDown={onKeyDown}
-          ref={inputRef}
+          aria-label="Chat message input"
         />
-        <button className="send-btn" onClick={sendMessage} disabled={!inputValue.trim()}>
+        <button onClick={sendMessage} disabled={!input.trim()} className="send-btn" aria-label="Send message">
           Send
         </button>
       </footer>
