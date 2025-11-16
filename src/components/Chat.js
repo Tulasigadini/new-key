@@ -1,54 +1,34 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import AutoSizer from "react-virtualized-auto-sizer";
+import { List } from "react-window";
 import "../styles.css";
-
-function useViewportHeight() {
-  const [vhValue, setVhValue] = useState(window.innerHeight || 0);
-
-  useEffect(() => {
-    const setVh = () => {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty("--vh", `${vh}px`);
-      setVhValue(window.innerHeight);
-    };
-    setVh();
-
-    window.addEventListener("resize", setVh);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", setVh);
-    }
-
-    return () => {
-      window.removeEventListener("resize", setVh);
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener("resize", setVh);
-      }
-    };
-  }, []);
-
-  return vhValue;
-}
 
 const Chat = () => {
   const [messages, setMessages] = useState([
     { id: 1, author: "Bot", text: "Welcome to the chat!" },
   ]);
   const [inputValue, setInputValue] = useState("");
-  const messagesEndRef = useRef(null);
+  const listRef = useRef(null);
+  const footerRef = useRef(null);
 
-  // Auto scroll to bottom on new message
+  // Scroll to bottom on new message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // scroll to last item
+    if (listRef.current) {
+      listRef.current.scrollToItem(messages.length - 1);
+    }
   }, [messages]);
 
   const sendMessage = () => {
     if (inputValue.trim() === "") return;
-    setMessages((prev) => [
-      ...prev,
-      { id: prev.length + 1, author: "You", text: inputValue.trim() },
+    setMessages([
+      ...messages,
+      { id: messages.length + 1, author: "You", text: inputValue.trim() },
     ]);
     setInputValue("");
   };
 
+  // Handle enter key to send message
   const onKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -56,27 +36,55 @@ const Chat = () => {
     }
   };
 
-  useViewportHeight();
+  // Estimate row height for messages (can be fine tuned)
+  const rowHeight = 60;
+
+  // Render each message row
+  const Row = ({ index, style }) => {
+    const msg = messages[index];
+    return (
+      <div
+        style={{
+          ...style,
+          padding: "10px 20px",
+          display: "flex",
+          justifyContent: msg.author === "You" ? "flex-end" : "flex-start",
+        }}
+      >
+        <div
+          className={`bubble ${msg.author === "You" ? "me" : "bot"}`}
+          style={{ maxWidth: "70%" }}
+          role="article"
+          aria-label={`${msg.author} message`}
+        >
+          {msg.text}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="chat-container">
       <header className="chat-header">Chat App</header>
 
-      <main className="chat-main" aria-live="polite" aria-relevant="additions">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`bubble ${msg.author === "You" ? "me" : "bot"}`}
-            role="article"
-            aria-label={`${msg.author} message`}
-          >
-            {msg.text}
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </main>
+      {/* Auto size message list */}
+      <div className="chat-main">
+        <AutoSizer>
+          {({ height, width }) => (
+            <List
+              height={height}
+              itemCount={messages.length}
+              itemSize={rowHeight}
+              width={width}
+              ref={listRef}
+            >
+              {Row}
+            </List>
+          )}
+        </AutoSizer>
+      </div>
 
-      <footer className="chat-footer">
+      <footer className="chat-footer" ref={footerRef}>
         <textarea
           rows={1}
           className="chat-input"
@@ -87,9 +95,9 @@ const Chat = () => {
           aria-label="Chat input"
         />
         <button
+          className="send-btn"
           onClick={sendMessage}
           disabled={!inputValue.trim()}
-          className="send-btn"
           aria-label="Send message"
         >
           Send

@@ -1,8 +1,3 @@
-/* Set CSS custom property for mobile viewport height */
-:root {
-  --vh: 1vh;
-}
-
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -12,18 +7,19 @@ body {
 }
 
 .chat-container {
-  /* Use dynamic viewport height to avoid keyboard jump */
-  height: calc(var(--vh, 1vh) * 100);
   max-width: 480px;
+  height: 100vh;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background-color: white;
+  background: white;
   border-radius: 12px;
-  box-shadow: 0 1px 8px rgb(0 0 0 / 0.13);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.13);
+  overflow: hidden;
 }
 
 .chat-header {
+  flex-shrink: 0;
   padding: 16px;
   background: linear-gradient(90deg, #8166e3 60%, #e16ca5 100%);
   color: white;
@@ -32,50 +28,49 @@ body {
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   user-select: none;
-  flex-shrink: 0;
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 20;
+  left: 0;
+  right: 0;
+  z-index: 100;
 }
 
 .chat-main {
   flex-grow: 1;
-  overflow-y: auto;
-  padding: 10px 16px;
-  -webkit-overflow-scrolling: touch;
+  margin-top: 64px; /* height of header */
+  margin-bottom: 80px; /* height of footer */
+  height: calc(100vh - 64px - 80px);
 }
 
 .bubble {
-  max-width: 75%;
-  padding: 12px 18px;
-  margin-bottom: 12px;
+  background-color: #e16ca5;
+  color: white;
   border-radius: 18px;
+  padding: 12px 18px;
   font-size: 1rem;
   word-break: break-word;
 }
 
 .bubble.me {
   background-color: #8166e3;
-  color: white;
-  align-self: flex-end;
-}
-
-.bubble.bot {
-  background-color: #e16ca5;
-  color: white;
-  align-self: flex-start;
 }
 
 .chat-footer {
   flex-shrink: 0;
-  position: sticky;
-  bottom: 0;
-  background-color: white;
   padding: 12px 16px;
+  background: white;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   gap: 12px;
   border-top: 1px solid #ddd;
-  z-index: 20;
+  z-index: 101;
+  height: 80px;
+  align-items: center;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .chat-input {
