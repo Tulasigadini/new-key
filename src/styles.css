@@ -1,45 +1,45 @@
 body {
   margin: 0;
-  background: #f4f2fb;
   font-family: 'Roboto', sans-serif;
+  background: #f4f2fb;
 }
 
 .chat-container {
   max-width: 420px;
   margin: 0 auto;
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  background: white;
   border-radius: 14px;
   box-shadow: 0 6px 24px rgba(80, 60, 100, 0.1);
+  background: white;
+  /* Height controlled dynamically with vh state */
 }
 
 .chat-header {
-  background: linear-gradient(90deg, #8166e3 60%, #e16ca5 100%);
-  color: white;
   padding: 18px;
   font-weight: 500;
-  font-size: 1.22rem;
-  text-align: center;
+  font-size: 1.2rem;
+  background: linear-gradient(90deg, #8166e3 60%, #e16ca5 100%);
+  color: white;
   border-top-left-radius: 14px;
   border-top-right-radius: 14px;
+  text-align: center;
 }
 
 .chat-main {
   flex: 1;
-  padding: 20px 14px 80px 14px; /* padding-bottom to avoid hidden behind footer */
+  padding: 20px 14px 10px 14px; /* bottom padding not needed due to footer fixed */
   overflow-y: auto;
 }
 
 .bubble {
+  max-width: 70%;
   margin-bottom: 12px;
   padding: 10px 16px;
   border-radius: 18px;
-  display: inline-block;
-  max-width: 70%;
   word-break: break-word;
   font-size: 1rem;
+  display: inline-block;
 }
 
 .bubble.me {
@@ -63,14 +63,14 @@ body {
   right: 0;
   max-width: 420px;
   margin: auto;
-  background: white;
   padding: 12px 14px;
+  background: white;
   display: flex;
   gap: 10px;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
   border-bottom-left-radius: 14px;
   border-bottom-right-radius: 14px;
-  z-index: 1000;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
 }
 
 .chat-input {
@@ -82,14 +82,15 @@ body {
   resize: none;
   outline: none;
   overflow-y: hidden;
+  max-height: 150px;
 }
 
 .send-btn {
   padding: 8px 18px;
   border-radius: 18px;
   border: none;
+  background-color: #8166e3;
   color: white;
-  background: #8166e3;
   font-weight: 500;
   cursor: pointer;
   font-size: 1rem;
@@ -97,6 +98,6 @@ body {
 }
 
 .send-btn:disabled {
-  background: #aaa;
+  background-color: #aaa;
   cursor: not-allowed;
 }
