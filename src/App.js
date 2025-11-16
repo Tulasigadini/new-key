@@ -1,5 +1,5 @@
 import React from "react";
-import Chat from "./Chat";
+import Chat from "./components/Chat";  // Changed path
 
 function App() {
   return <Chat />;
