@@ -1,18 +1,18 @@
 body {
   margin: 0;
-  font-family: 'Roboto', sans-serif;
   background: #f4f2fb;
+  font-family: "Roboto", sans-serif;
 }
 
 .chat-container {
   max-width: 420px;
   margin: 0 auto;
+  height: calc(var(--vh, 1vh) * 100);
   display: flex;
   flex-direction: column;
+  background: white;
   border-radius: 14px;
   box-shadow: 0 6px 24px rgba(80, 60, 100, 0.1);
-  background: white;
-  /* Height controlled dynamically with vh state */
 }
 
 .chat-header {
@@ -28,7 +28,7 @@ body {
 
 .chat-main {
   flex: 1;
-  padding: 20px 14px 10px 14px; /* bottom padding not needed due to footer fixed */
+  padding: 20px 14px 10px 14px;
   overflow-y: auto;
 }
 
@@ -45,14 +45,12 @@ body {
 .bubble.me {
   background: #8166e3;
   color: white;
-  align-self: flex-end;
   margin-left: auto;
 }
 
 .bubble.bot {
   background: #e16ca5;
   color: white;
-  align-self: flex-start;
   margin-right: auto;
 }
 
@@ -70,7 +68,7 @@ body {
   border-bottom-left-radius: 14px;
   border-bottom-right-radius: 14px;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 100;
+  z-index: 1000;
 }
 
 .chat-input {
