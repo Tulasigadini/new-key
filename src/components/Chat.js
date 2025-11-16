@@ -8,7 +8,6 @@ const Chat = () => {
   const [input, setInput] = useState("");
   const [containerHeight, setContainerHeight] = useState(window.innerHeight);
   const messagesContainerRef = useRef(null);
-  const messagesEndRef = useRef(null);
 
   // Handle viewport height changes (keyboard appearance)
   useEffect(() => {
@@ -48,21 +47,22 @@ const Chat = () => {
 
   return (
     <div className="app-container" style={{ height: `${containerHeight}px` }}>
-      {/* Fixed Header - Never moves */}
+      {/* Fixed Header */}
       <div className="header">
         <span>Chat App</span>
       </div>
 
-      {/* Scrollable Messages Area */}
+      {/* Scrollable Messages Area - messages start from bottom */}
       <div className="messages-area" ref={messagesContainerRef}>
-        {messages.map(msg => (
-          <div key={msg.id} className={`message-wrapper ${msg.author === "You" ? "right" : "left"}`}>
-            <div className={`message ${msg.author === "You" ? "me" : "bot"}`}>
-              {msg.text}
+        <div className="messages-list">
+          {messages.map(msg => (
+            <div key={msg.id} className={`message-wrapper ${msg.author === "You" ? "right" : "left"}`}>
+              <div className={`message ${msg.author === "You" ? "me" : "bot"}`}>
+                {msg.text}
+              </div>
             </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
+          ))}
+        </div>
       </div>
 
       {/* Fixed Footer Input */}

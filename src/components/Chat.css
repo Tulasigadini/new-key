@@ -1,4 +1,4 @@
-/* App container with controlled height */
+/* App container with controlled height - NO scroll on body */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -9,7 +9,7 @@
   overflow: hidden;
 }
 
-/* Fixed header - will NOT move */
+/* Fixed header */
 .header {
   height: 60px;
   background: linear-gradient(90deg, #8166e3 60%, #e16ca5 100%);
@@ -20,17 +20,26 @@
   font-size: 1.5rem;
   font-weight: 700;
   flex-shrink: 0;
-  position: relative;
   z-index: 100;
 }
 
-/* Messages area - scrollable */
+/* Messages area - scrollable with flex layout to push messages to bottom */
 .messages-area {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
   background: #f9f9f9;
   -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Push content to bottom */
+}
+
+/* Messages list wrapper */
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  min-height: min-content;
 }
 
 /* Message wrapper for alignment */
@@ -76,7 +85,6 @@
   background: white;
   border-top: 1px solid #ddd;
   flex-shrink: 0;
-  position: relative;
   z-index: 100;
 }
 
