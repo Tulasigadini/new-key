@@ -6,62 +6,56 @@ const Chat = () => {
     { id: 1, author: "Bot", text: "Welcome to the chat!" },
   ]);
   const [input, setInput] = useState("");
-  const [containerHeight, setContainerHeight] = useState(window.innerHeight);
-  const messagesContainerRef = useRef(null);
-  const inputRef = useRef(null);
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  const messagesRef = useRef(null);
 
-  // Handle viewport height changes WITHOUT allowing scroll
+  // Lock viewport height and prevent any scrolling
   useEffect(() => {
-    const handleResize = () => {
-      const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      setContainerHeight(height);
+    // Immediately lock scroll on mount
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    
+    const updateHeight = () => {
+      const height = window.visualViewport?.height || window.innerHeight;
+      setViewportHeight(height);
       
-      // Prevent any scroll that might have happened
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
+      // Force scroll to 0 on any height change
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+      }, 0);
     };
 
+    // Update on visual viewport changes
     if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", handleResize);
-      window.visualViewport.addEventListener("scroll", () => window.scrollTo(0, 0));
+      window.visualViewport.addEventListener('resize', updateHeight);
     }
     
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("scroll", () => window.scrollTo(0, 0), { passive: false });
+    // Prevent all scroll attempts
+    const preventScroll = (e) => {
+      window.scrollTo(0, 0);
+    };
+    
+    window.addEventListener('scroll', preventScroll, { passive: false });
+    document.addEventListener('touchmove', (e) => {
+      if (!messagesRef.current?.contains(e.target)) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    updateHeight();
 
     return () => {
       if (window.visualViewport) {
-        window.visualViewport.removeEventListener("resize", handleResize);
+        window.visualViewport.removeEventListener('resize', updateHeight);
       }
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('scroll', preventScroll);
     };
   }, []);
 
-  // Prevent input focus from scrolling page
+  // Scroll messages to bottom
   useEffect(() => {
-    const preventInputScroll = () => {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    };
-
-    const inputElement = inputRef.current;
-    if (inputElement) {
-      inputElement.addEventListener("focus", preventInputScroll);
-      inputElement.addEventListener("click", preventInputScroll);
-      
-      return () => {
-        inputElement.removeEventListener("focus", preventInputScroll);
-        inputElement.removeEventListener("click", preventInputScroll);
-      };
-    }
-  }, []);
-
-  // Scroll messages to bottom on new message
-  useEffect(() => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -79,37 +73,32 @@ const Chat = () => {
   };
 
   return (
-    <div className="app-container" style={{ height: `${containerHeight}px` }}>
-      {/* Fixed Header */}
-      <div className="header">
-        <span>Chat App</span>
+    <div className="chat-wrapper" style={{ height: `${viewportHeight}px` }}>
+      <div className="chat-header">Chat App</div>
+      
+      <div className="chat-messages" ref={messagesRef}>
+        <div className="messages-spacer"></div>
+        {messages.map(msg => (
+          <div key={msg.id} className={`msg ${msg.author === "You" ? "me" : "bot"}`}>
+            <div className="msg-bubble">{msg.text}</div>
+          </div>
+        ))}
       </div>
-
-      {/* Scrollable Messages Area */}
-      <div className="messages-area" ref={messagesContainerRef}>
-        <div className="messages-list">
-          {messages.map(msg => (
-            <div key={msg.id} className={`message-wrapper ${msg.author === "You" ? "right" : "left"}`}>
-              <div className={`message ${msg.author === "You" ? "me" : "bot"}`}>
-                {msg.text}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Fixed Footer Input */}
-      <div className="footer">
+      
+      <div className="chat-input-area">
         <textarea
-          ref={inputRef}
-          className="input-box"
-          placeholder="Type a message..."
+          className="input"
+          placeholder="Type message..."
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={1}
         />
-        <button className="send-button" onClick={sendMessage} disabled={!input.trim()}>
+        <button 
+          className="btn-send" 
+          onClick={sendMessage} 
+          disabled={!input.trim()}
+        >
           Send
         </button>
       </div>
