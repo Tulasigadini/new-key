@@ -8,6 +8,7 @@ const Chat = () => {
   const [input, setInput] = useState("");
   const [containerHeight, setContainerHeight] = useState(window.innerHeight);
   const messagesContainerRef = useRef(null);
+  const appContainerRef = useRef(null);
 
   // Handle viewport height changes (keyboard appearance)
   useEffect(() => {
@@ -22,6 +23,23 @@ const Chat = () => {
     } else {
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
+
+  // Prevent any touch scrolling on the app container itself
+  useEffect(() => {
+    const preventScroll = (e) => {
+      // Only allow scrolling inside messages area
+      if (messagesContainerRef.current && messagesContainerRef.current.contains(e.target)) {
+        return; // Allow scroll in messages area
+      }
+      e.preventDefault();
+    };
+
+    const container = appContainerRef.current;
+    if (container) {
+      container.addEventListener("touchmove", preventScroll, { passive: false });
+      return () => container.removeEventListener("touchmove", preventScroll);
     }
   }, []);
 
@@ -46,13 +64,17 @@ const Chat = () => {
   };
 
   return (
-    <div className="app-container" style={{ height: `${containerHeight}px` }}>
+    <div 
+      className="app-container" 
+      style={{ height: `${containerHeight}px` }}
+      ref={appContainerRef}
+    >
       {/* Fixed Header */}
       <div className="header">
         <span>Chat App</span>
       </div>
 
-      {/* Scrollable Messages Area - messages start from bottom */}
+      {/* Scrollable Messages Area */}
       <div className="messages-area" ref={messagesContainerRef}>
         <div className="messages-list">
           {messages.map(msg => (

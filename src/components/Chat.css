@@ -1,12 +1,17 @@
-/* App container with controlled height - NO scroll on body */
+/* App container - completely isolated scrolling */
 .app-container {
   display: flex;
   flex-direction: column;
   max-width: 480px;
   margin: 0 auto;
   background: white;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none; /* Prevent default touch behaviors on container */
 }
 
 /* Fixed header */
@@ -21,9 +26,10 @@
   font-weight: 700;
   flex-shrink: 0;
   z-index: 100;
+  touch-action: none; /* Prevent scroll on header */
 }
 
-/* Messages area - scrollable with flex layout to push messages to bottom */
+/* Messages area - ONLY this should scroll */
 .messages-area {
   flex: 1;
   overflow-y: auto;
@@ -31,7 +37,9 @@
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end; /* Push content to bottom */
+  justify-content: flex-end;
+  overscroll-behavior: contain; /* Prevent scroll chaining */
+  touch-action: pan-y; /* Only allow vertical scrolling */
 }
 
 /* Messages list wrapper */
@@ -42,7 +50,7 @@
   min-height: min-content;
 }
 
-/* Message wrapper for alignment */
+/* Message wrapper */
 .message-wrapper {
   display: flex;
   margin-bottom: 12px;
@@ -86,6 +94,7 @@
   border-top: 1px solid #ddd;
   flex-shrink: 0;
   z-index: 100;
+  touch-action: none; /* Prevent scroll on footer */
 }
 
 /* Input box */
@@ -99,6 +108,7 @@
   outline: none;
   font-family: inherit;
   overflow-y: hidden;
+  touch-action: manipulation; /* Allow input interaction but prevent zoom */
 }
 
 /* Send button */
@@ -111,6 +121,7 @@
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .send-button:disabled {
