@@ -1,13 +1,12 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
 import Chat from './components/Chat';
-import './index.css';
+import './styles.css';
 
 function App() {
   return (
-    <BrowserRouter>
+    <div className="App">
       <Chat />
-    </BrowserRouter>
+    </div>
   );
 }
 
