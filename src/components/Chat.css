@@ -1,0 +1,111 @@
+/* App container with controlled height */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+  background: white;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Fixed header - will NOT move */
+.header {
+  height: 60px;
+  background: linear-gradient(90deg, #8166e3 60%, #e16ca5 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 100;
+}
+
+/* Messages area - scrollable */
+.messages-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #f9f9f9;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Message wrapper for alignment */
+.message-wrapper {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.message-wrapper.left {
+  justify-content: flex-start;
+}
+
+.message-wrapper.right {
+  justify-content: flex-end;
+}
+
+/* Message bubble */
+.message {
+  max-width: 70%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 1rem;
+  word-wrap: break-word;
+}
+
+.message.bot {
+  background: #e16ca5;
+  color: white;
+}
+
+.message.me {
+  background: #8166e3;
+  color: white;
+}
+
+/* Fixed footer */
+.footer {
+  height: 70px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 16px;
+  background: white;
+  border-top: 1px solid #ddd;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 100;
+}
+
+/* Input box */
+.input-box {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 20px;
+  border: 1px solid #8166e3;
+  font-size: 16px;
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  overflow-y: hidden;
+}
+
+/* Send button */
+.send-button {
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  background: #8166e3;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.send-button:disabled {
+  background: #b4a7d6;
+  cursor: not-allowed;
+}
