@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../styles.css";
 
 const Chat = () => {
@@ -6,18 +6,40 @@ const Chat = () => {
     { id: 1, author: "Bot", text: "Welcome to the chat!" },
   ]);
   const [inputValue, setInputValue] = useState("");
-  const messagesEndRef = useRef(null);
+  const messagesRef = useRef(null);
+
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const handleResize = () => {
+      const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      setViewportHeight(vh);
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+    } else {
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize);
+      } else {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const sendMessage = () => {
     if (inputValue.trim() === "") return;
-    setMessages((prev) => [
-      ...prev,
-      { id: prev.length + 1, author: "You", text: inputValue.trim() },
-    ]);
+    setMessages(prev => [...prev, {id: prev.length + 1, author: "You", text: inputValue.trim()}]);
     setInputValue("");
   };
 
@@ -29,29 +51,25 @@ const Chat = () => {
   };
 
   return (
-    <div className="chat-page">
-      <header className="header">Chat App</header>
-      <main className="messages-container">
-        {messages.map((msg) => (
-          <div
-            className={`message ${msg.author === "You" ? "me" : "bot"}`}
-            key={msg.id}
-          >
+    <div className="chat-container" style={{height: viewportHeight}}>
+      <header className="chat-header">Chat App</header>
+      <main className="chat-main" ref={messagesRef}>
+        {messages.map(msg => (
+          <div key={msg.id} className={`bubble ${msg.author === "You" ? "me" : "bot"}`}>
             {msg.text}
           </div>
         ))}
-        <div ref={messagesEndRef}></div>
-        <div style={{ height: "80px" }}></div> {/* Reserve space for input */}
       </main>
-      <footer className="footer">
+      <footer className="chat-footer">
         <textarea
-          className="input-message"
-          placeholder="Type a message..."
+          rows={1}
+          className="chat-input"
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={e => setInputValue(e.target.value)}
           onKeyDown={onKeyDown}
+          placeholder="Type a message..."
         />
-        <button onClick={sendMessage} disabled={!inputValue.trim()}>
+        <button className="send-btn" onClick={sendMessage} disabled={!inputValue.trim()}>
           Send
         </button>
       </footer>

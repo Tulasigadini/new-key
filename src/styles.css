@@ -1,93 +1,106 @@
-body,
-html {
+html, body {
   margin: 0;
   padding: 0;
   height: 100%;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f2fb;
 }
 
-.chat-page {
-  min-height: 100vh;
+.chat-container {
+  max-width: 480px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  overflow: hidden;
 }
 
-.header {
+.chat-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  padding: 16px;
   background: linear-gradient(90deg, #8166e3 60%, #e16ca5 100%);
   color: white;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 60px;
-  padding-left: 16px;
-  z-index: 1000;
+  font-weight: 600;
+  font-size: 1.5rem;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  z-index: 10;
   user-select: none;
 }
 
-.messages-container {
-  margin-top: 60px; /* height of header */
-  padding: 16px;
-  flex-grow: 1;
+.chat-main {
+  flex: 1;
+  margin-top: 64px;
+  margin-bottom: 80px;
+  padding: 10px 16px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-.message {
-  max-width: 70%;
-  margin-bottom: 12px;
+.bubble {
+  max-width: 75%;
   padding: 12px 16px;
+  margin-bottom: 12px;
   border-radius: 18px;
   font-size: 1rem;
-  word-wrap: break-word;
+  word-break: break-word;
   background-color: #e16ca5;
   color: white;
 }
 
-.message.me {
+.bubble.me {
   background-color: #8166e3;
-  margin-left: auto;
+  align-self: flex-end;
 }
 
-.footer {
+.chat-footer {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
+  padding: 12px 16px;
   height: 80px;
-  padding: 10px 16px;
   background: white;
   display: flex;
-  gap: 10px;
-  border-top: 1px solid #ddd;
-  z-index: 1001;
+  gap: 12px;
   align-items: center;
+  border-top: 1px solid #ddd;
+  z-index: 10;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
-.input-message {
+.chat-input {
   flex-grow: 1;
-  padding: 10px 14px;
-  font-size: 16px;
+  padding: 10px 16px;
   border-radius: 20px;
   border: 1px solid #8166e3;
   resize: none;
   outline: none;
+  font-size: 1rem;
   max-height: 150px;
+  overflow-y: hidden;
 }
 
-footer button {
-  background: #8166e3;
-  color: white;
-  border: none;
+.send-btn {
+  padding: 8px 20px;
   border-radius: 20px;
-  padding: 10px 20px;
-  font-size: 16px;
+  border: none;
+  background-color: #8166e3;
+  color: white;
   font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-footer button:disabled {
-  background: #b4a5cc;
+.send-btn:disabled {
+  background-color: #b4a5cc;
   cursor: not-allowed;
 }
