@@ -9,50 +9,75 @@ const Chat = () => {
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
   const messagesRef = useRef(null);
 
-  // Lock viewport height and prevent any scrolling
+  // Aggressive scroll prevention - force scroll to 0 always
   useEffect(() => {
-    // Immediately lock scroll on mount
+    // Lock body scroll
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.documentElement.style.position = 'fixed';
+    document.documentElement.style.width = '100%';
     
+    // Force scroll to 0 immediately and continuously
+    const forceScrollTop = () => {
+      if (window.scrollY !== 0 || window.pageYOffset !== 0) {
+        window.scrollTo(0, 0);
+      }
+      if (document.documentElement.scrollTop !== 0) {
+        document.documentElement.scrollTop = 0;
+      }
+      if (document.body.scrollTop !== 0) {
+        document.body.scrollTop = 0;
+      }
+    };
+
+    // Run immediately
+    forceScrollTop();
+
+    // Set up continuous monitoring
+    const scrollInterval = setInterval(forceScrollTop, 50);
+
+    // Handle viewport changes
     const updateHeight = () => {
       const height = window.visualViewport?.height || window.innerHeight;
       setViewportHeight(height);
-      
-      // Force scroll to 0 on any height change
-      setTimeout(() => {
-        window.scrollTo(0, 0);
-      }, 0);
+      forceScrollTop();
     };
 
-    // Update on visual viewport changes
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', updateHeight);
+      window.visualViewport.addEventListener('scroll', forceScrollTop);
     }
     
-    // Prevent all scroll attempts
-    const preventScroll = (e) => {
-      window.scrollTo(0, 0);
-    };
-    
-    window.addEventListener('scroll', preventScroll, { passive: false });
-    document.addEventListener('touchmove', (e) => {
-      if (!messagesRef.current?.contains(e.target)) {
-        e.preventDefault();
-      }
-    }, { passive: false });
-
-    updateHeight();
+    // Multiple event listeners to catch all scroll attempts
+    window.addEventListener('scroll', forceScrollTop, { passive: false, capture: true });
+    document.addEventListener('scroll', forceScrollTop, { passive: false, capture: true });
+    window.addEventListener('touchmove', forceScrollTop, { passive: false, capture: true });
+    window.addEventListener('wheel', forceScrollTop, { passive: false, capture: true });
 
     return () => {
+      clearInterval(scrollInterval);
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', updateHeight);
+        window.visualViewport.removeEventListener('scroll', forceScrollTop);
       }
-      window.removeEventListener('scroll', preventScroll);
+      window.removeEventListener('scroll', forceScrollTop);
+      document.removeEventListener('scroll', forceScrollTop);
+      window.removeEventListener('touchmove', forceScrollTop);
+      window.removeEventListener('wheel', forceScrollTop);
+      
+      // Cleanup
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.documentElement.style.position = '';
+      document.documentElement.style.width = '';
     };
   }, []);
 
-  // Scroll messages to bottom
+  // Scroll messages to bottom on new message
   useEffect(() => {
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
