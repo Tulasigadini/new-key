@@ -6,13 +6,10 @@ const Chat = () => {
     { id: 1, author: "Bot", text: "Welcome to the chat!" },
   ]);
   const [inputValue, setInputValue] = useState("");
-  const messagesContainerRef = useRef(null);
+  const messagesEndRef = useRef(null);
 
-  // Scroll to bottom on new messages
   useEffect(() => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const sendMessage = () => {
@@ -32,36 +29,29 @@ const Chat = () => {
   };
 
   return (
-    <div className="chat-container">
-      <header className="chat-header">Chat App</header>
-
-      <main className="chat-main" ref={messagesContainerRef} tabIndex={-1}>
+    <div className="chat-page">
+      <header className="header">Chat App</header>
+      <main className="messages-container">
         {messages.map((msg) => (
           <div
+            className={`message ${msg.author === "You" ? "me" : "bot"}`}
             key={msg.id}
-            className={`bubble ${msg.author === "You" ? "me" : "bot"}`}
           >
             {msg.text}
           </div>
         ))}
+        <div ref={messagesEndRef}></div>
+        <div style={{ height: "80px" }}></div> {/* Reserve space for input */}
       </main>
-
-      <footer className="chat-footer">
+      <footer className="footer">
         <textarea
-          rows={1}
-          className="chat-input"
-          placeholder="Type your message..."
+          className="input-message"
+          placeholder="Type a message..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={onKeyDown}
-          aria-label="Chat message input"
         />
-        <button
-          onClick={sendMessage}
-          disabled={!inputValue.trim()}
-          className="send-btn"
-          aria-label="Send message"
-        >
+        <button onClick={sendMessage} disabled={!inputValue.trim()}>
           Send
         </button>
       </footer>
