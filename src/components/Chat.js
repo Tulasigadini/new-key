@@ -1,49 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import "../styles.css";
 
 const Chat = () => {
   const [messages, setMessages] = useState([
-    { id: 1, author: "Bot", text: "Welcome to the chat!" },
+    { id: 1, author: "Bot", text: "Hello! How can I help?" },
   ]);
-  const [inputValue, setInputValue] = useState("");
-  const messagesRef = useRef(null);
-
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      setViewportHeight(vh);
-    };
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleResize);
-    } else {
-      window.addEventListener('resize', handleResize);
-    }
-
-    return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleResize);
-      } else {
-        window.removeEventListener('resize', handleResize);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (messagesRef.current) {
-      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-    }
-  }, [messages]);
+  const [input, setInput] = useState("");
 
   const sendMessage = () => {
-    if (inputValue.trim() === "") return;
-    setMessages(prev => [...prev, {id: prev.length + 1, author: "You", text: inputValue.trim()}]);
-    setInputValue("");
+    if (!input.trim()) return;
+    setMessages(prev => [...prev, { id: Date.now(), author: "You", text: input.trim() }]);
+    setInput("");
   };
 
-  const onKeyDown = (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -51,28 +21,24 @@ const Chat = () => {
   };
 
   return (
-    <div className="chat-container" style={{height: viewportHeight}}>
-      <header className="chat-header">Chat App</header>
-      <main className="chat-main" ref={messagesRef}>
+    <div className="chat-wrapper">
+      <header className="header">My Chat App</header>
+      <div className="messages-container">
         {messages.map(msg => (
-          <div key={msg.id} className={`bubble ${msg.author === "You" ? "me" : "bot"}`}>
+          <div key={msg.id} className={`message ${msg.author === "You" ? "me" : "bot"}`}>
             {msg.text}
           </div>
         ))}
-      </main>
-      <footer className="chat-footer">
+      </div>
+      <div className="input-area">
         <textarea
-          rows={1}
-          className="chat-input"
-          value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
-          onKeyDown={onKeyDown}
           placeholder="Type a message..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
-        <button className="send-btn" onClick={sendMessage} disabled={!inputValue.trim()}>
-          Send
-        </button>
-      </footer>
+        <button disabled={!input.trim()} onClick={sendMessage}>Send</button>
+      </div>
     </div>
   );
 };
