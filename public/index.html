@@ -2,11 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
     <title>Chat App</title>
     <style>
-      /* Completely prevent body/html scrolling */
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+      
       html {
         margin: 0;
         padding: 0;
@@ -14,6 +17,7 @@
         width: 100%;
         position: fixed;
         overflow: hidden;
+        overscroll-behavior: none;
       }
       
       body {
@@ -24,7 +28,6 @@
         position: fixed;
         overflow: hidden;
         overscroll-behavior: none;
-        -webkit-overflow-scrolling: touch;
       }
 
       #root {
@@ -32,6 +35,10 @@
         width: 100%;
         overflow: hidden;
         position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
       }
     </style>
   </head>

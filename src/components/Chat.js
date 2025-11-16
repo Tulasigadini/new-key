@@ -8,42 +8,57 @@ const Chat = () => {
   const [input, setInput] = useState("");
   const [containerHeight, setContainerHeight] = useState(window.innerHeight);
   const messagesContainerRef = useRef(null);
-  const appContainerRef = useRef(null);
+  const inputRef = useRef(null);
 
-  // Handle viewport height changes (keyboard appearance)
+  // Handle viewport height changes WITHOUT allowing scroll
   useEffect(() => {
     const handleResize = () => {
       const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       setContainerHeight(height);
+      
+      // Prevent any scroll that might have happened
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
     };
 
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", handleResize);
-      return () => window.visualViewport.removeEventListener("resize", handleResize);
-    } else {
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
+      window.visualViewport.addEventListener("scroll", () => window.scrollTo(0, 0));
     }
+    
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("scroll", () => window.scrollTo(0, 0), { passive: false });
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", handleResize);
+      }
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
-  // Prevent any touch scrolling on the app container itself
+  // Prevent input focus from scrolling page
   useEffect(() => {
-    const preventScroll = (e) => {
-      // Only allow scrolling inside messages area
-      if (messagesContainerRef.current && messagesContainerRef.current.contains(e.target)) {
-        return; // Allow scroll in messages area
-      }
-      e.preventDefault();
+    const preventInputScroll = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
     };
 
-    const container = appContainerRef.current;
-    if (container) {
-      container.addEventListener("touchmove", preventScroll, { passive: false });
-      return () => container.removeEventListener("touchmove", preventScroll);
+    const inputElement = inputRef.current;
+    if (inputElement) {
+      inputElement.addEventListener("focus", preventInputScroll);
+      inputElement.addEventListener("click", preventInputScroll);
+      
+      return () => {
+        inputElement.removeEventListener("focus", preventInputScroll);
+        inputElement.removeEventListener("click", preventInputScroll);
+      };
     }
   }, []);
 
-  // Scroll to bottom on new message
+  // Scroll messages to bottom on new message
   useEffect(() => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
@@ -64,11 +79,7 @@ const Chat = () => {
   };
 
   return (
-    <div 
-      className="app-container" 
-      style={{ height: `${containerHeight}px` }}
-      ref={appContainerRef}
-    >
+    <div className="app-container" style={{ height: `${containerHeight}px` }}>
       {/* Fixed Header */}
       <div className="header">
         <span>Chat App</span>
@@ -90,6 +101,7 @@ const Chat = () => {
       {/* Fixed Footer Input */}
       <div className="footer">
         <textarea
+          ref={inputRef}
           className="input-box"
           placeholder="Type a message..."
           value={input}
